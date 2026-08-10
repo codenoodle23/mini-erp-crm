@@ -1,0 +1,289 @@
+{
+  "info": {
+    "name": "Mini ERP + CRM Operations Portal",
+    "description": "REST API for the Mini ERP + CRM take-home case study. Import this alongside the accompanying environment file. Run 'Login (Sales)' first — it saves the JWT into {{token}} automatically for every other request.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:4000/api" },
+    { "key": "token", "value": "" },
+    { "key": "customerId", "value": "" },
+    { "key": "productId", "value": "" },
+    { "key": "challanId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login (Sales)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.collectionVariables.set('token', body.token);",
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"sales@demo.com\",\n  \"password\": \"Password123!\"\n}" },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        },
+        {
+          "name": "Login (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@demo.com\",\n  \"password\": \"Password123!\"\n}" },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        },
+        {
+          "name": "Login (Warehouse)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"warehouse@demo.com\",\n  \"password\": \"Password123!\"\n}" },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        },
+        {
+          "name": "Login (Accounts)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"accounts@demo.com\",\n  \"password\": \"Password123!\"\n}" },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        },
+        {
+          "name": "Get current user (/auth/me)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/auth/me" }
+        },
+        {
+          "name": "Create user (Admin only)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Employee\",\n  \"email\": \"new.employee@demo.com\",\n  \"password\": \"Password123!\",\n  \"role\": \"SALES\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/users"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Customers",
+      "item": [
+        {
+          "name": "List customers",
+          "request": { "method": "GET", "url": "{{baseUrl}}/customers?page=1&pageSize=20" }
+        },
+        {
+          "name": "Search + filter customers",
+          "request": { "method": "GET", "url": "{{baseUrl}}/customers?search=rajesh&status=ACTIVE&customerType=DISTRIBUTOR" }
+        },
+        {
+          "name": "Create customer",
+          "event": [
+            {
+              "listen": "test",
+              "script": { "exec": ["const body = pm.response.json();", "if (body.data) pm.collectionVariables.set('customerId', body.data.id);"] }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Customer Co\",\n  \"mobile\": \"9000000001\",\n  \"email\": \"test@customer.example\",\n  \"businessName\": \"Test Customer Co Pvt Ltd\",\n  \"customerType\": \"WHOLESALE\",\n  \"status\": \"LEAD\",\n  \"address\": \"1 Test Street\",\n  \"notes\": \"Created via Postman\"\n}"
+            },
+            "url": "{{baseUrl}}/customers"
+          }
+        },
+        {
+          "name": "Get customer detail",
+          "request": { "method": "GET", "url": "{{baseUrl}}/customers/{{customerId}}" }
+        },
+        {
+          "name": "Update customer",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"ACTIVE\"\n}" },
+            "url": "{{baseUrl}}/customers/{{customerId}}"
+          }
+        },
+        {
+          "name": "Add follow-up note",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note\": \"Called to confirm delivery address.\",\n  \"followUpDate\": \"2026-08-20\"\n}"
+            },
+            "url": "{{baseUrl}}/customers/{{customerId}}/follow-ups"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products & Inventory",
+      "item": [
+        {
+          "name": "List products",
+          "request": { "method": "GET", "url": "{{baseUrl}}/products?page=1&pageSize=20" }
+        },
+        {
+          "name": "Low stock products",
+          "request": { "method": "GET", "url": "{{baseUrl}}/products?lowStock=true" }
+        },
+        {
+          "name": "Create product",
+          "event": [
+            {
+              "listen": "test",
+              "script": { "exec": ["const body = pm.response.json();", "if (body.data) pm.collectionVariables.set('productId', body.data.id);"] }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Product\",\n  \"sku\": \"TEST-SKU-001\",\n  \"category\": \"General\",\n  \"unitPrice\": 99.5,\n  \"currentStock\": 100,\n  \"minStockAlert\": 20,\n  \"location\": \"Warehouse A\"\n}"
+            },
+            "url": "{{baseUrl}}/products"
+          }
+        },
+        {
+          "name": "Get product detail (+ stock log)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/products/{{productId}}" }
+        },
+        {
+          "name": "Update product",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"minStockAlert\": 25\n}" },
+            "url": "{{baseUrl}}/products/{{productId}}"
+          }
+        },
+        {
+          "name": "Record stock movement (IN)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 50,\n  \"movementType\": \"IN\",\n  \"reason\": \"New shipment received\"\n}"
+            },
+            "url": "{{baseUrl}}/products/{{productId}}/stock-movements"
+          }
+        },
+        {
+          "name": "Record stock movement (OUT — insufficient stock example)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 999999,\n  \"movementType\": \"OUT\",\n  \"reason\": \"Demonstrates the negative-stock guard (expect 400)\"\n}"
+            },
+            "url": "{{baseUrl}}/products/{{productId}}/stock-movements"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sales Challans",
+      "item": [
+        {
+          "name": "List challans",
+          "request": { "method": "GET", "url": "{{baseUrl}}/challans?page=1&pageSize=20" }
+        },
+        {
+          "name": "Filter challans by status",
+          "request": { "method": "GET", "url": "{{baseUrl}}/challans?status=DRAFT" }
+        },
+        {
+          "name": "Create challan (Draft)",
+          "event": [
+            {
+              "listen": "test",
+              "script": { "exec": ["const body = pm.response.json();", "if (body.data) pm.collectionVariables.set('challanId', body.data.id);"] }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"items\": [\n    { \"productId\": \"{{productId}}\", \"quantity\": 5 }\n  ],\n  \"status\": \"DRAFT\"\n}"
+            },
+            "url": "{{baseUrl}}/challans"
+          }
+        },
+        {
+          "name": "Get challan detail",
+          "request": { "method": "GET", "url": "{{baseUrl}}/challans/{{challanId}}" }
+        },
+        {
+          "name": "Update draft challan items",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    { \"productId\": \"{{productId}}\", \"quantity\": 8 }\n  ]\n}"
+            },
+            "url": "{{baseUrl}}/challans/{{challanId}}"
+          }
+        },
+        {
+          "name": "Confirm challan (deducts stock)",
+          "request": { "method": "POST", "url": "{{baseUrl}}/challans/{{challanId}}/confirm" }
+        },
+        {
+          "name": "Cancel challan (restores stock if confirmed)",
+          "request": { "method": "POST", "url": "{{baseUrl}}/challans/{{challanId}}/cancel" }
+        },
+        {
+          "name": "Create + confirm in one step, insufficient stock (expect 400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"items\": [\n    { \"productId\": \"{{productId}}\", \"quantity\": 999999 }\n  ],\n  \"status\": \"CONFIRMED\"\n}"
+            },
+            "url": "{{baseUrl}}/challans"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health check",
+          "request": { "method": "GET", "url": "http://localhost:4000/health" }
+        }
+      ]
+    }
+  ]
+}
