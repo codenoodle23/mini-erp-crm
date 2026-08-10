@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    name: Backend — typecheck & build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm run build
+
+  frontend:
+    name: Frontend — typecheck & build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run build
+        env:
+          VITE_API_URL: http://localhost:4000/api
+
+  docker-build:
+    name: Docker images build
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build backend image
+        run: docker build -t mini-erp-crm-backend:ci ./backend
+      - name: Build frontend image
+        run: docker build -t mini-erp-crm-frontend:ci ./frontend
+
+  # Deployment is intentionally left out of this workflow: it would need
+  # secrets (e.g. RENDER_DEPLOY_HOOK_URL / VERCEL_TOKEN) configured in the
+  # repo's Settings > Secrets, which aren't available in this environment.
+  # Once you have a Render/Railway/Vercel project, the typical addition is:
+  #
+  #   deploy-backend:
+  #     needs: docker-build
+  #     runs-on: ubuntu-latest
+  #     steps:
+  #       - run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+
