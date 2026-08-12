@@ -1,14 +1,16 @@
+
 import { type FormEvent, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { ApiClientError } from "../api/client";
-
+import { BootSplash } from "../components/BootSplash";
 export function LoginPage() {
   const { user, login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showBootSplash, setShowBootSplash] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -22,8 +24,9 @@ export function LoginPage() {
     setError(null);
     setSubmitting(true);
     try {
-      await login(email, password);
-      navigate("/", { replace: true });
+  await login(email, password);
+
+  setShowBootSplash(true);
     } catch (err) {
       setError(err instanceof ApiClientError ? err.message : "Something went wrong. Please try again.");
     } finally {
@@ -37,6 +40,7 @@ export function LoginPage() {
   }
 
   return (
+  <>
     <div className="login-screen">
       <div className="login-card">
         <div className="login-brand">
@@ -106,7 +110,14 @@ export function LoginPage() {
             </div>
           ))}
         </div>
-      </div>
+            </div>
     </div>
+
+    {showBootSplash && (
+      <BootSplash
+        onComplete={() => navigate("/", { replace: true })}
+      />
+    )}
+  </>
   );
 }

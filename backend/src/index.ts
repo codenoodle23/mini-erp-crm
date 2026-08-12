@@ -1,6 +1,7 @@
 import { createApp } from "./app";
 import { env } from "./config/env";
 import { pool } from "./db/client";
+import "dotenv/config";
 
 const app = createApp();
 

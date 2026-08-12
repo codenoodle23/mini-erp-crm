@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { db, pool } from "./client";
 import { customerFollowUps, customers, products, stockMovements, users } from "./schema";
-
+import "dotenv/config";
 const DEMO_PASSWORD = "Password123!";
 
 async function main() {

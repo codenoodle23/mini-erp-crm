@@ -32,37 +32,54 @@ export function CustomersListPage() {
   }, [page, search, status, customerType]);
 
   return (
-    <div className="stack">
+    <div className="stack customers-page">
       <div className="section-title-row">
         <div>
-          <h1 style={{ fontSize: 21, marginBottom: 4 }}>Customers</h1>
-          <p style={{ color: "var(--slate)", fontSize: 13.5, margin: 0 }}>Leads, active accounts, and distributor relationships.</p>
+          <div className="customers-heading">
+
+  <div className="customers-eyebrow">
+    <span className="customers-eyebrow-dot" />
+    CUSTOMER RELATIONSHIP MANAGEMENT
+  </div>
+
+  <h1>Customers</h1>
+
+  <p>
+    Leads, active accounts, and distributor relationships.
+  </p>
+
+</div>
         </div>
         {can(user, "SALES") && (
-          <button className="btn btn-primary" onClick={() => navigate("/customers/new")}>
-            + New customer
-          </button>
+          <button
+  className="btn btn-primary customer-create-btn"
+  onClick={() => navigate("/customers/new")}
+>
+  <span>+</span>
+  New customer
+</button>
         )}
       </div>
 
-      <div className="card">
-        <div className="card-header" style={{ gap: 10, flexWrap: "wrap" }}>
+      <div className="card customers-card">
+        <div className="card-header customers-filters">
           <input
-            placeholder="Search name, mobile, email, business..."
+  className="customer-search"
+  placeholder="Search name, mobile, email, business..."
             value={search}
             onChange={(e) => {
               setPage(1);
               setSearch(e.target.value);
             }}
-            style={{ flex: 1, minWidth: 220, border: "1px solid var(--line)", borderRadius: 6, padding: "8px 11px", fontSize: 13.5 }}
+            
           />
           <select
-            value={status}
+  className="customer-filter"
+  value={status}
             onChange={(e) => {
               setPage(1);
               setStatus(e.target.value as CustomerStatus | "");
             }}
-            style={{ border: "1px solid var(--line)", borderRadius: 6, padding: "8px 11px", fontSize: 13.5 }}
           >
             <option value="">All statuses</option>
             <option value="LEAD">Lead</option>
@@ -70,12 +87,12 @@ export function CustomersListPage() {
             <option value="INACTIVE">Inactive</option>
           </select>
           <select
-            value={customerType}
+  className="customer-filter"
+  value={customerType}
             onChange={(e) => {
               setPage(1);
               setCustomerType(e.target.value as CustomerType | "");
             }}
-            style={{ border: "1px solid var(--line)", borderRadius: 6, padding: "8px 11px", fontSize: 13.5 }}
           >
             <option value="">All types</option>
             <option value="RETAIL">Retail</option>
@@ -85,7 +102,7 @@ export function CustomersListPage() {
         </div>
 
         <div className="table-wrap">
-          <table className="data-table">
+          <table className="data-table customers-table">
             <thead>
               <tr>
                 <th>Name</th>
@@ -108,11 +125,30 @@ export function CustomersListPage() {
                 </tr>
               )}
               {result?.data.map((c) => (
-                <tr key={c.id} onClick={() => navigate(`/customers/${c.id}`)}>
+                <tr
+  key={c.id}
+  className="customer-row"
+  onClick={() => navigate(`/customers/${c.id}`)}
+>
                   <td>
-                    <div style={{ fontWeight: 600 }}>{c.name}</div>
-                    {c.businessName && <div style={{ fontSize: 12, color: "var(--slate)" }}>{c.businessName}</div>}
-                  </td>
+  <div className="customer-identity">
+
+    <div className="customer-avatar">
+      {c.name.charAt(0).toUpperCase()}
+    </div>
+
+    <div className="customer-name-block">
+
+      <strong>{c.name}</strong>
+
+      {c.businessName && (
+        <span>{c.businessName}</span>
+      )}
+
+    </div>
+
+  </div>
+</td>
                   <td className="num">{c.mobile}</td>
                   <td>{c.customerType}</td>
                   <td>

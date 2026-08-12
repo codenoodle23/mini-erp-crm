@@ -16,7 +16,13 @@ export function Layout() {
     <div className="app-shell">
       <aside className="sidebar">
         <div className="sidebar-brand">
-          <div className="sidebar-mark">MC</div>
+          <div className="sidebar-mark">
+  <img
+  src="/logo-m.png"
+  alt="M/ERP"
+  className="brand-logo"
+/>
+</div>
           <div className="sidebar-brand-text">
             <strong>Mini ERP+CRM</strong>
             <span>Wholesale ops portal</span>
