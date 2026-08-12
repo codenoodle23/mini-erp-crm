@@ -19,6 +19,8 @@ export function createApp() {
     cors({
       origin: env.corsOrigin === "*" ? true : env.corsOrigin.split(","),
       credentials: true,
+      // Lets the frontend use the server-selected challan filename for PDF downloads.
+      exposedHeaders: ["Content-Disposition"],
     })
   );
   app.use(compression());

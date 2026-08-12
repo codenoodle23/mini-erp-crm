@@ -26,7 +26,7 @@ async function getFullChallan(executor: Tx | typeof db, id: string) {
   return executor.query.challans.findFirst({
     where: eq(challans.id, id),
     with: {
-      customer: { columns: { id: true, name: true, mobile: true, businessName: true } },
+      customer: { columns: { id: true, name: true, mobile: true, email: true, businessName: true, gstNumber: true, address: true } },
       createdBy: { columns: { id: true, name: true } },
       items: true,
     },
@@ -46,7 +46,7 @@ export async function listChallans(pagination: PaginationParams, filters: ListFi
       offset: pagination.skip,
       orderBy: desc(challans.createdAt),
       with: {
-        customer: { columns: { id: true, name: true, mobile: true, businessName: true } },
+        customer: { columns: { id: true, name: true, mobile: true, email: true, businessName: true, gstNumber: true, address: true } },
         createdBy: { columns: { id: true, name: true } },
         items: true,
       },

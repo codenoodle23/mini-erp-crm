@@ -6,6 +6,7 @@ import { requireAuth, requireRole } from "../../middleware/auth";
 import { getPagination } from "../../utils/pagination";
 import { createChallanSchema, idParamSchema, listChallansQuerySchema, updateChallanSchema } from "./challans.schema";
 import * as challansService from "./challans.service";
+import { streamChallanPdf } from "./challanPdf.service";
 
 const router = Router();
 
@@ -20,6 +21,21 @@ router.get(
     const { status, customerId } = req.query as Record<string, string | undefined>;
     const result = await challansService.listChallans(pagination, { status: status as never, customerId });
     res.status(200).json(result);
+  })
+);
+
+// GET /challans/:id/pdf — same authenticated, read-only access as challan detail.
+router.get(
+  "/:id/pdf",
+  validate({ params: idParamSchema }),
+  asyncHandler(async (req, res) => {
+    const challan = await challansService.getChallanById(req.params.id as string);
+    const filename = `${challan.challanNumber.replace(/[^a-zA-Z0-9._-]/g, "-")}.pdf`;
+    res.status(200);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.setHeader("Cache-Control", "no-store");
+    await streamChallanPdf(res, challan);
   })
 );
 

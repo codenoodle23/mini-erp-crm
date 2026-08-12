@@ -236,6 +236,7 @@ POST   /api/products/:id/stock-movements
 
 GET    /api/challans             ?status=&customerId=&page=&pageSize=
 GET    /api/challans/:id
+GET    /api/challans/:id/pdf     authenticated PDF download
 POST   /api/challans             { customerId, items: [{productId, quantity}], status }
 PUT    /api/challans/:id         (DRAFT only — replaces line items)
 POST   /api/challans/:id/confirm
@@ -320,7 +321,6 @@ Being upfront about what's not here, given the 48-hour scope:
   Postman collection, rather than Jest/Vitest suites. This is the biggest gap for a production
   system and the first thing I'd add next.
 - **No file/image upload** (e.g. product images to S3) — listed as a bonus, not implemented.
-- **No PDF export** for challans — listed as a bonus, not implemented.
 - **Search is `ILIKE`-based**, not full-text-indexed — fine at this data volume, would want a
   trigram or full-text index before this scaled to a large customer/product catalog.
 - **Challan number sequencing** counts same-day challans inside the transaction rather than using

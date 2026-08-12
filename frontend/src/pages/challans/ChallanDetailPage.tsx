@@ -13,6 +13,7 @@ export function ChallanDetailPage() {
   const [challan, setChallan] = useState<Challan | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function reload() {
@@ -56,6 +57,27 @@ export function ChallanDetailPage() {
     }
   }
 
+  async function handlePdfDownload() {
+    if (!id || !challan) return;
+    setPdfLoading(true);
+    setError(null);
+    try {
+      const { blob, filename } = await challansApi.downloadPdf(id);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename ?? `${challan.challanNumber}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(err instanceof ApiClientError ? err.message : "Could not generate the PDF.");
+    } finally {
+      setPdfLoading(false);
+    }
+  }
+
   if (loading || !challan) return <p style={{ color: "var(--slate)" }}>Loading...</p>;
 
   const total = challan.items.reduce((sum, i) => sum + Number(i.lineTotal), 0);
@@ -77,6 +99,9 @@ export function ChallanDetailPage() {
           </p>
         </div>
         <div className="row">
+          <button className="btn btn-secondary" onClick={handlePdfDownload} disabled={pdfLoading}>
+            {pdfLoading ? "Generating PDF..." : "↓ Export PDF"}
+          </button>
           {challan.status === "DRAFT" && can(user, "SALES") && (
             <button className="btn btn-primary" onClick={handleConfirm} disabled={actionLoading}>
               {actionLoading ? "Confirming..." : "Confirm (deduct stock)"}

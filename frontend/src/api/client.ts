@@ -54,9 +54,24 @@ async function request<T>(path: string, opts: RequestOptions = {}): Promise<T> {
   return payload as T;
 }
 
+async function download(path: string): Promise<{ blob: Blob; filename?: string }> {
+  const token = getToken();
+  const res = await fetch(new URL(`${API_BASE_URL}${path}`).toString(), {
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  });
+  if (!res.ok) {
+    const payload = res.headers.get("content-type")?.includes("application/json") ? await res.json() : null;
+    throw new ApiClientError(res.status, payload?.error?.message ?? `Request failed with status ${res.status}`, payload?.error?.details);
+  }
+  const disposition = res.headers.get("content-disposition");
+  const filename = disposition?.match(/filename="?([^";]+)"?/i)?.[1];
+  return { blob: await res.blob(), filename };
+}
+
 export const api = {
   get: <T>(path: string, query?: RequestOptions["query"]) => request<T>(path, { method: "GET", query }),
   post: <T>(path: string, body?: unknown) => request<T>(path, { method: "POST", body }),
   put: <T>(path: string, body?: unknown) => request<T>(path, { method: "PUT", body }),
   del: <T>(path: string) => request<T>(path, { method: "DELETE" }),
+  download,
 };

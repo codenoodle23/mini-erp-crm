@@ -93,7 +93,15 @@ export interface Challan {
   id: string;
   challanNumber: string;
   customerId: string;
-  customer?: { id: string; name: string; mobile: string; businessName?: string | null };
+  customer?: {
+    id: string;
+    name: string;
+    mobile: string;
+    email?: string | null;
+    businessName?: string | null;
+    gstNumber?: string | null;
+    address?: string | null;
+  };
   totalQuantity: number;
   status: ChallanStatus;
   createdById: string;

@@ -63,4 +63,5 @@ export const challansApi = {
     api.put<{ data: Challan }>(`/challans/${id}`, input),
   confirm: (id: string) => api.post<{ data: Challan }>(`/challans/${id}/confirm`),
   cancel: (id: string) => api.post<{ data: Challan }>(`/challans/${id}/cancel`),
+  downloadPdf: (id: string) => api.download(`/challans/${id}/pdf`),
 };
